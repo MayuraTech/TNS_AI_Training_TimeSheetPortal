@@ -7,7 +7,7 @@
   "executionRoleArn": "arn:aws:iam::119346096827:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
-      "name": "tms-ui",
+      "name": "ui",
       "image": "119346096827.dkr.ecr.us-west-2.amazonaws.com/tms-application-qa-ui:latest",
       "portMappings": [
         {

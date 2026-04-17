@@ -8,7 +8,7 @@
   "taskRoleArn": "arn:aws:iam::119346096827:role/ecsTaskRole",
   "containerDefinitions": [
     {
-      "name": "tms-api",
+      "name": "api",
       "image": "119346096827.dkr.ecr.us-west-2.amazonaws.com/tms-application-qa-api:latest",
       "portMappings": [
         {
