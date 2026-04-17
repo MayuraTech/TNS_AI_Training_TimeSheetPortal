@@ -161,12 +161,28 @@ jobs:
           echo "uri=${IMAGE}" >> $GITHUB_OUTPUT
           echo "Deploying image: ${IMAGE}"
 
-      - name: Update ECS task definition with new image
+      - name: Download current task definition from AWS
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition tms-application-qa-api \
+            --query taskDefinition \
+            > /tmp/task-definition-api.json
+          echo "Current task definition:"
+          cat /tmp/task-definition-api.json | python3 -c "import json,sys; td=json.load(sys.stdin); print('Container names:', [c['name'] for c in td.get('containerDefinitions',[])])"
+
+      - name: Detect container name
+        id: container
+        run: |
+          CONTAINER_NAME=$(cat /tmp/task-definition-api.json | python3 -c "import json,sys; td=json.load(sys.stdin); print(td['containerDefinitions'][0]['name'])")
+          echo "name=${CONTAINER_NAME}" >> $GITHUB_OUTPUT
+          echo "Container name: ${CONTAINER_NAME}"
+
+      - name: Update task definition with new image
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: aws/ecs/task-definition-api.json
-          container-name: tms-api
+          task-definition: /tmp/task-definition-api.json
+          container-name: ${{ steps.container.outputs.name }}
           image: ${{ steps.image.outputs.uri }}
 
       - name: Deploy API to ECS
@@ -202,12 +218,28 @@ jobs:
           echo "uri=${IMAGE}" >> $GITHUB_OUTPUT
           echo "Deploying image: ${IMAGE}"
 
-      - name: Update ECS task definition with new image
+      - name: Download current task definition from AWS
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition tms-application-qa-ui \
+            --query taskDefinition \
+            > /tmp/task-definition-ui.json
+          echo "Container names:"
+          cat /tmp/task-definition-ui.json | python3 -c "import json,sys; td=json.load(sys.stdin); print([c['name'] for c in td.get('containerDefinitions',[])])"
+
+      - name: Detect container name
+        id: container
+        run: |
+          CONTAINER_NAME=$(cat /tmp/task-definition-ui.json | python3 -c "import json,sys; td=json.load(sys.stdin); print(td['containerDefinitions'][0]['name'])")
+          echo "name=${CONTAINER_NAME}" >> $GITHUB_OUTPUT
+          echo "Container name: ${CONTAINER_NAME}"
+
+      - name: Update task definition with new image
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: aws/ecs/task-definition-ui.json
-          container-name: tms-ui
+          task-definition: /tmp/task-definition-ui.json
+          container-name: ${{ steps.container.outputs.name }}
           image: ${{ steps.image.outputs.uri }}
 
       - name: Deploy UI to ECS
