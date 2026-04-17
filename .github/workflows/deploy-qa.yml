@@ -167,32 +167,49 @@ jobs:
             --task-definition tms-application-qa-api \
             --query taskDefinition \
             > /tmp/task-definition-api.json
-          echo "Current task definition:"
-          cat /tmp/task-definition-api.json | python3 -c "import json,sys; td=json.load(sys.stdin); print('Container names:', [c['name'] for c in td.get('containerDefinitions',[])])"
+          echo "Container names in live task def:"
+          cat /tmp/task-definition-api.json | python3 -c "import json,sys; td=json.load(sys.stdin); print([c['name'] for c in td.get('containerDefinitions',[])])"
 
-      - name: Detect container name
-        id: container
+      - name: Update image in task definition
         run: |
-          CONTAINER_NAME=$(cat /tmp/task-definition-api.json | python3 -c "import json,sys; td=json.load(sys.stdin); print(td['containerDefinitions'][0]['name'])")
-          echo "name=${CONTAINER_NAME}" >> $GITHUB_OUTPUT
-          echo "Container name: ${CONTAINER_NAME}"
+          NEW_IMAGE="${{ steps.image.outputs.uri }}"
+          echo "Updating image to: ${NEW_IMAGE}"
+          # Update the first container's image using python3
+          python3 -c "
+          import json, sys
+          with open('/tmp/task-definition-api.json') as f:
+              td = json.load(f)
+          td['containerDefinitions'][0]['image'] = '${NEW_IMAGE}'
+          # Remove fields that cannot be in a RegisterTaskDefinition request
+          for key in ['taskDefinitionArn','revision','status','requiresAttributes','compatibilities','registeredAt','registeredBy']:
+              td.pop(key, None)
+          with open('/tmp/task-definition-api-new.json', 'w') as f:
+              json.dump(td, f)
+          print('Updated container:', td['containerDefinitions'][0]['name'], '->', td['containerDefinitions'][0]['image'])
+          "
 
-      - name: Update task definition with new image
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: /tmp/task-definition-api.json
-          container-name: ${{ steps.container.outputs.name }}
-          image: ${{ steps.image.outputs.uri }}
+      - name: Register new task definition
+        id: register
+        run: |
+          NEW_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file:///tmp/task-definition-api-new.json \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+          echo "arn=${NEW_ARN}" >> $GITHUB_OUTPUT
+          echo "Registered: ${NEW_ARN}"
 
       - name: Deploy API to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service:         ${{ env.ECS_API_SVC }}
-          cluster:         ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
-          wait-for-minutes: 10
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_API_SVC }} \
+            --task-definition ${{ steps.register.outputs.arn }} \
+            --force-new-deployment
+          echo "Waiting for service stability..."
+          aws ecs wait services-stable \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_API_SVC }}
+          echo "✅ API deployed successfully"
 
   # ── Job 5: Deploy UI to ECS ──────────────────────────────────
   deploy-ui:
@@ -227,29 +244,43 @@ jobs:
           echo "Container names:"
           cat /tmp/task-definition-ui.json | python3 -c "import json,sys; td=json.load(sys.stdin); print([c['name'] for c in td.get('containerDefinitions',[])])"
 
-      - name: Detect container name
-        id: container
+      - name: Update image in task definition
         run: |
-          CONTAINER_NAME=$(cat /tmp/task-definition-ui.json | python3 -c "import json,sys; td=json.load(sys.stdin); print(td['containerDefinitions'][0]['name'])")
-          echo "name=${CONTAINER_NAME}" >> $GITHUB_OUTPUT
-          echo "Container name: ${CONTAINER_NAME}"
+          NEW_IMAGE="${{ steps.image.outputs.uri }}"
+          python3 -c "
+          import json
+          with open('/tmp/task-definition-ui.json') as f:
+              td = json.load(f)
+          td['containerDefinitions'][0]['image'] = '${NEW_IMAGE}'
+          for key in ['taskDefinitionArn','revision','status','requiresAttributes','compatibilities','registeredAt','registeredBy']:
+              td.pop(key, None)
+          with open('/tmp/task-definition-ui-new.json', 'w') as f:
+              json.dump(td, f)
+          print('Updated:', td['containerDefinitions'][0]['name'], '->', td['containerDefinitions'][0]['image'])
+          "
 
-      - name: Update task definition with new image
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: /tmp/task-definition-ui.json
-          container-name: ${{ steps.container.outputs.name }}
-          image: ${{ steps.image.outputs.uri }}
+      - name: Register new task definition
+        id: register
+        run: |
+          NEW_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file:///tmp/task-definition-ui-new.json \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+          echo "arn=${NEW_ARN}" >> $GITHUB_OUTPUT
+          echo "Registered: ${NEW_ARN}"
 
       - name: Deploy UI to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service:         ${{ env.ECS_UI_SVC }}
-          cluster:         ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
-          wait-for-minutes: 10
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_UI_SVC }} \
+            --task-definition ${{ steps.register.outputs.arn }} \
+            --force-new-deployment
+          echo "Waiting for service stability..."
+          aws ecs wait services-stable \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_UI_SVC }}
+          echo "✅ UI deployed successfully"
 
   # ── Job 6: Smoke Test ────────────────────────────────────────
   smoke-test:
