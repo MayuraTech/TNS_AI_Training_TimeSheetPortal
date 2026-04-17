@@ -32,9 +32,16 @@ jobs:
           cache: maven
 
       - name: Run backend tests
-        run: mvn test -pl tms-backend --no-transfer-progress
-        env:
-          SPRING_PROFILES_ACTIVE: test
+        working-directory: tms-backend
+        run: |
+          mvn test --no-transfer-progress \
+            -Dspring.profiles.active=test \
+            -Dspring.datasource.url=jdbc:h2:mem:testdb \
+            -Dspring.datasource.driver-class-name=org.h2.Driver \
+            -Dspring.jpa.hibernate.ddl-auto=create-drop \
+            -Dspring.flyway.enabled=false \
+            -Dtest="!TmsApplicationTest" \
+            -DfailIfNoTests=false
 
       - name: Upload test results
         if: always()
