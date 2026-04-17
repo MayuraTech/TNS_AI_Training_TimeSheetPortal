@@ -170,23 +170,36 @@ jobs:
           echo "Container names in live task def:"
           cat /tmp/task-definition-api.json | python3 -c "import json,sys; td=json.load(sys.stdin); print([c['name'] for c in td.get('containerDefinitions',[])])"
 
+      - name: Check ECS service load balancer config
+        run: |
+          echo "=== ECS Service container port mappings ==="
+          aws ecs describe-services \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_API_SVC }} \
+            --query 'services[0].loadBalancers' \
+            --output json
+
       - name: Update image in task definition
         run: |
           NEW_IMAGE="${{ steps.image.outputs.uri }}"
-          echo "Updating image to: ${NEW_IMAGE}"
-          # Update the first container's image using python3
-          python3 -c "
-          import json, sys
+          python3 << 'EOF'
+          import json, os
+          new_image = os.environ.get('NEW_IMAGE', '')
           with open('/tmp/task-definition-api.json') as f:
               td = json.load(f)
-          td['containerDefinitions'][0]['image'] = '${NEW_IMAGE}'
-          # Remove fields that cannot be in a RegisterTaskDefinition request
-          for key in ['taskDefinitionArn','revision','status','requiresAttributes','compatibilities','registeredAt','registeredBy']:
+          print("Containers in live task def:")
+          for c in td['containerDefinitions']:
+              print(f"  - name: {c['name']}, image: {c['image']}")
+          td['containerDefinitions'][0]['image'] = new_image
+          for key in ['taskDefinitionArn','revision','status','requiresAttributes',
+                      'compatibilities','registeredAt','registeredBy','deregisteredAt']:
               td.pop(key, None)
           with open('/tmp/task-definition-api-new.json', 'w') as f:
-              json.dump(td, f)
-          print('Updated container:', td['containerDefinitions'][0]['name'], '->', td['containerDefinitions'][0]['image'])
-          "
+              json.dump(td, f, indent=2)
+          print(f"Updated image to: {new_image}")
+          EOF
+        env:
+          NEW_IMAGE: ${{ steps.image.outputs.uri }}
 
       - name: Register new task definition
         id: register
