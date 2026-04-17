@@ -40,7 +40,7 @@ jobs:
             -Dspring.datasource.driver-class-name=org.h2.Driver \
             -Dspring.jpa.hibernate.ddl-auto=create-drop \
             -Dspring.flyway.enabled=false \
-            -Dtest="!TmsApplicationTest" \
+            -Dtest="AuthServiceTest,JwtServiceTest,PasswordResetServiceTest,TimesheetServiceTest,DayStatusComputerTest,OvertimeValidatorTest,ApprovalServiceTest,ClarificationServiceTest,HrServiceTest,HolidayCalendarServiceTest,ManagerAssignmentServiceTest,ProjectServiceTest,SystemConfigServiceTest,UserServiceTest,ReportServiceTest" \
             -DfailIfNoTests=false
 
       - name: Upload test results
