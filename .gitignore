@@ -1,0 +1,31 @@
+# Environment
+.env
+*.env.local
+
+# Backend
+tms-backend/target/
+tms-backend/.jqwik-database
+*.jar
+*.war
+
+# Frontend
+tms-frontend/node_modules/
+tms-frontend/dist/
+tms-frontend/.angular/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Docker
+docker-compose.override.yml

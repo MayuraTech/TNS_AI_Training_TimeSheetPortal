@@ -1,0 +1,39 @@
+{
+  "family": "tms-application-qa-ui",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::119346096827:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "tms-ui",
+      "image": "119346096827.dkr.ecr.us-west-2.amazonaws.com/tms-application-qa-ui:latest",
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        { "name": "API_URL", "value": "http://tms-application-alb-1363434811.us-west-2.elb.amazonaws.com" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/tms-application-qa-ui",
+          "awslogs-region": "us-west-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": ["CMD-SHELL", "wget -qO- http://localhost/health || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 30
+      }
+    }
+  ]
+}

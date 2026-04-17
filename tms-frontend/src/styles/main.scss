@@ -1,0 +1,91 @@
+// ============================================================
+// TMS Global Styles — Entry Point
+// ============================================================
+
+// Angular Material theme (Angular 19 API)
+@use '@angular/material' as mat;
+@include mat.core();
+
+$tms-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$azure-palette,
+    tertiary: mat.$orange-palette
+  ),
+  typography: (
+    brand-family: "'General Sans', 'Outfit', sans-serif",
+    plain-family: "'General Sans', 'Outfit', sans-serif"
+  )
+));
+
+:root {
+  @include mat.all-component-themes($tms-theme);
+}
+
+// Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+// Design system
+@import 'tokens';
+@import 'reset';
+@import 'layout';
+@import 'components';
+
+// ── Utilities ─────────────────────────────────────────────────
+.text-muted    { color: var(--color-neutral-500); }
+.text-sm       { font-size: 0.875rem; }
+.text-xs       { font-size: 0.75rem; }
+.text-lg       { font-size: 1.125rem; }
+.font-semibold { font-weight: 600; }
+.font-bold     { font-weight: 700; }
+
+.flex            { display: flex; }
+.flex-col        { flex-direction: column; }
+.items-center    { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2  { gap: 8px; }
+.gap-3  { gap: 12px; }
+.gap-4  { gap: 16px; }
+.gap-6  { gap: 24px; }
+
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+}
+
+.mt-4  { margin-top: 16px; }
+.mt-6  { margin-top: 24px; }
+.mb-4  { margin-bottom: 16px; }
+.mb-6  { margin-bottom: 24px; }
+.p-4   { padding: 16px; }
+.p-6   { padding: 24px; }
+.w-full  { width: 100%; }
+.rounded { border-radius: var(--border-radius-md); }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+// Animations
+.fade-in  { animation: fadeIn var(--transition-base) ease-out; }
+.slide-up { animation: slideUp var(--transition-slow) ease-out; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.stagger-children > * {
+  animation: slideUp var(--transition-slow) ease-out both;
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) { animation-delay: #{($i - 1) * 60}ms; }
+  }
+}
