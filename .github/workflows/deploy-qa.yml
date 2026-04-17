@@ -173,8 +173,10 @@ jobs:
           with open('/tmp/td-api.json') as f:
               td = json.load(f)
           for c in td['containerDefinitions']:
+              # Rename container to 'api' — ECS service LB config requires this name
+              c['name'] = 'api'
               c['image'] = new_image
-              print(f"Set {c['name']} image -> {new_image}")
+              print(f"Container set to name=api, image={new_image}")
           for k in ['taskDefinitionArn','revision','status','requiresAttributes',
                     'compatibilities','registeredAt','registeredBy','deregisteredAt']:
               td.pop(k, None)
@@ -236,8 +238,10 @@ jobs:
           with open('/tmp/td-ui.json') as f:
               td = json.load(f)
           for c in td['containerDefinitions']:
+              # Rename container to 'ui' — ECS service LB config requires this name
+              c['name'] = 'ui'
               c['image'] = new_image
-              print(f"Set {c['name']} image -> {new_image}")
+              print(f"Container set to name=ui, image={new_image}")
           for k in ['taskDefinitionArn','revision','status','requiresAttributes',
                     'compatibilities','registeredAt','registeredBy','deregisteredAt']:
               td.pop(k, None)
