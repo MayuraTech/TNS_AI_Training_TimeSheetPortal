@@ -24,11 +24,16 @@ COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 # Copy built Angular app
 COPY --from=builder /app/dist/tms-frontend/browser /usr/share/nginx/html
 
+# Create entrypoint script to handle envsubst
+RUN echo '#!/bin/sh' > /docker-entrypoint-custom.sh && \
+    echo 'set -e' >> /docker-entrypoint-custom.sh && \
+    echo 'envsubst "\$API_URL" < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf' >> /docker-entrypoint-custom.sh && \
+    echo 'exec nginx -g "daemon off;"' >> /docker-entrypoint-custom.sh && \
+    chmod +x /docker-entrypoint-custom.sh
+
 EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
   CMD wget -qO- http://localhost/health || exit 1
 
-# nginx docker image automatically runs envsubst on /etc/nginx/templates/*.template
-# and outputs to /etc/nginx/conf.d/ — so API_URL env var will be substituted
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/docker-entrypoint-custom.sh"]
