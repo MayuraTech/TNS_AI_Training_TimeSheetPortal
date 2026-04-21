@@ -7,7 +7,7 @@ COPY package*.json ./
 RUN npm ci --legacy-peer-deps
 
 COPY . .
-RUN npm run build:prod
+RUN npm run build:prod -- --base-href=/qa/ui/ --deploy-url=/qa/ui/
 
 # ── Stage 2: Nginx Runtime ───────────────────────────────────
 FROM nginx:1.27-alpine
