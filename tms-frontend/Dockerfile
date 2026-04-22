@@ -24,9 +24,9 @@ COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 # Copy built Angular app
 COPY --from=builder /app/dist/tms-frontend/browser /usr/share/nginx/html
 
-# Copy custom entrypoint script
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+# Create entrypoint script inline
+RUN printf '#!/bin/sh\nset -e\nenvsubst '"'"'$API_URL'"'"' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf\nexec nginx -g "daemon off;"\n' > /docker-entrypoint.sh && \
+    chmod +x /docker-entrypoint.sh
 
 EXPOSE 80
 
