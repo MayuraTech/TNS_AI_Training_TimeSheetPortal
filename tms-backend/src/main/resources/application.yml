@@ -12,7 +12,7 @@ spring:
     properties:
       hibernate:
         default_schema: TMS4
-        dialect: org.hibernate.dialect.SQLServerDialect
+    open-in-view: false
 
   # 🔥 IMPORTANT: Prevent Spring Boot from replacing DB with H2 during tests
   test:
@@ -39,8 +39,7 @@ spring:
             enable: true
 
   thymeleaf:
-    prefix: classpath:/templates/
-    suffix: .html
+    check-template-location: false
 
 server:
   port: 8080
