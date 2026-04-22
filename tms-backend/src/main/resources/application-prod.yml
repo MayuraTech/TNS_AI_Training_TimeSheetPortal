@@ -10,7 +10,7 @@ spring:
       connection-timeout: 30000
 
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: none
     properties:
@@ -20,15 +20,6 @@ spring:
 
   flyway:
     enabled: false
-    locations: classpath:db/migration
-    schemas: TMS4
-    default-schema: TMS4
-    baseline-on-migrate: true
-
-  server:
-  port: 8080
-  servlet:
-    context-path: /qa/api
 
   mail:
     host: ${MAIL_HOST:smtp.office365.com}
@@ -58,10 +49,9 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
-  endpoint:
-    health:
-      show-details: when-authorized
+        include: health,info
   health:
     db:
+      enabled: false
+    mail:
       enabled: false
