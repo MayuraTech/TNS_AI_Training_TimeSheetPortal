@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:sqlserver://10.0.2.134;instanceName=SQLEXPRESS;databaseName=TMS;encrypt=true;trustServerCertificate=true
-    username: tmsuser
-    password: Tms@456
+    url: jdbc:sqlserver://fileracks-sql-db.tnssinc.com:1433;databaseName=TMS;encrypt=true;trustServerCertificate=true
+    username: fradmin
+    password: FR@dm1n@SQL
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
   jpa:
