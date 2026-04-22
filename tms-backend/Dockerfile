@@ -1,33 +1,43 @@
-# ── Stage 1: Build ──────────────────────────────────────────
-FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
+# Multi-stage build for Spring Boot 3.2 / Java 21 application
+
+# Stage 1: Build
+FROM maven:3.9-eclipse-temurin-21-alpine AS build
 
 WORKDIR /app
 
-# Copy pom first for layer caching
+# Copy POM and download dependencies (cached layer)
 COPY pom.xml .
-RUN mvn dependency:go-offline -q
+RUN mvn dependency:go-offline -B
 
 # Copy source and build
 COPY src ./src
-RUN mvn clean package -DskipTests -q
+RUN mvn clean package -DskipTests -Dmaven.test.skip=true -Dspring-boot.build-image.skip=true
 
-# ── Stage 2: Runtime ─────────────────────────────────────────
+# Stage 2: Runtime
 FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-# Security: run as non-root
-RUN addgroup -S tms && adduser -S tms -G tms
+# Install curl for health check
+RUN apk add --no-cache curl
 
-COPY --from=builder /app/target/*.jar app.jar
+# Create non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-RUN chown tms:tms app.jar
-USER tms
+# Create logs directory
+RUN mkdir -p /app/logs && chown -R appuser:appgroup /app/logs
+
+# Copy JAR from build stage
+COPY --from=build /app/target/*.jar app.jar
+RUN chown appuser:appgroup app.jar
+
+USER appuser
+
+# Actuator health check - Updated for context path
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:8080/qa/api/actuator/health || exit 1
 
 EXPOSE 8080
-
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD wget -qO- http://localhost:8080/actuator/health || exit 1
 
 ENTRYPOINT ["java", \
   "-XX:+UseContainerSupport", \
