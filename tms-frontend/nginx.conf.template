@@ -15,8 +15,15 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
 
-    # Health check endpoint - MUST come before other location blocks
+    # Health check endpoint for ALB - exact match
     location = /qa/ui {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+
+    # Health check with trailing slash
+    location = /qa/ui/ {
         access_log off;
         return 200 "healthy\n";
         add_header Content-Type text/plain;
@@ -25,7 +32,8 @@ server {
     # Angular app at /qa/ui/
     location /qa/ui/ {
         alias /usr/share/nginx/html/;
-        try_files $uri $uri/ /index.html;
+        index index.html;
+        try_files $uri $uri/ /qa/ui/index.html;
     }
 
     # Root redirect to /qa/ui/
