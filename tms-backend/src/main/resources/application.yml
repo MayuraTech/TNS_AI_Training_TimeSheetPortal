@@ -65,6 +65,8 @@ management:
   health:
     db:
       enabled: false
+    mail:
+      enabled: false
 
 app:
   jwt:
@@ -75,4 +77,3 @@ app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
   frontend-url: ${FRONTEND_URL:http://localhost:4200}
-
