@@ -15,10 +15,17 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
 
+    # Health check endpoint - MUST come before other location blocks
+    location = /qa/ui {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+
     # Angular app at /qa/ui/
     location /qa/ui/ {
         alias /usr/share/nginx/html/;
-        try_files $uri $uri/ /index.html =404;
+        try_files $uri $uri/ /index.html;
     }
 
     # Root redirect to /qa/ui/
@@ -39,7 +46,7 @@ server {
         proxy_cache_bypass $http_upgrade;
     }
 
-    # Health check endpoint
+    # General health check endpoint
     location /health {
         access_log off;
         return 200 "healthy\n";
