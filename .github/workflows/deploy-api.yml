@@ -1,65 +1,90 @@
 name: Deploy API
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
     paths:
       - 'tms-backend/**'
 
-jobs:
+permissions:
+  contents: read
 
+concurrency:
+  group: deploy-api-qa
+  cancel-in-progress: false
+
+jobs:
   deploy-qa:
     name: Deploy API to QA
     runs-on: ubuntu-latest
+    
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+    
     steps:
       - uses: actions/checkout@v4
-
+      
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
+      
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
+      
       - name: Build, tag, and push image to ECR
         env:
           ECR_URI: ${{ secrets.ECR_URI_QA_API }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_URI:$IMAGE_TAG ./tms-backend
-          docker push $ECR_URI:$IMAGE_TAG
-          docker tag $ECR_URI:$IMAGE_TAG $ECR_URI:latest
-          docker push $ECR_URI:latest
-
+          set -euo pipefail
+          docker build -t "$ECR_URI:$IMAGE_TAG" ./tms-backend
+          docker push "$ECR_URI:$IMAGE_TAG"
+          docker tag "$ECR_URI:$IMAGE_TAG" "$ECR_URI:latest"
+          docker push "$ECR_URI:latest"
+      
       - name: Update ECS task definition
         id: update-task-def
         env:
           ECR_URI: ${{ secrets.ECR_URI_QA_API }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          TASK_FAMILY="it-assets-qa-api"
-          TASK_DEF=$(aws ecs describe-task-definition --task-definition $TASK_FAMILY --region us-west-2)
-          NEW_TASK_DEF=$(echo $TASK_DEF | jq --arg IMAGE "$ECR_URI:$IMAGE_TAG" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
-          NEW_TASK_INFO=$(aws ecs register-task-definition --region us-west-2 --cli-input-json "$NEW_TASK_DEF")
-          NEW_REVISION=$(echo $NEW_TASK_INFO | jq -r '.taskDefinition.revision')
-          echo "revision=$NEW_REVISION" >> $GITHUB_OUTPUT
-
+          set -euo pipefail
+          TASK_FAMILY="tms-application-qa-api"
+          
+          aws ecs describe-task-definition \
+            --task-definition "$TASK_FAMILY" \
+            --region "$AWS_REGION" \
+            --query taskDefinition \
+            --output json | jq --arg IMAGE "$ECR_URI:$IMAGE_TAG" \
+            'del(.taskDefinitionArn,.revision,.status,.requiresAttributes,.compatibilities,.registeredAt,.registeredBy,.deregisteredAt,.enableFaultInjection) | .containerDefinitions[0].image = $IMAGE' > task-def.json
+          
+          NEW_REVISION=$(aws ecs register-task-definition \
+            --region "$AWS_REGION" \
+            --cli-input-json "file://$(pwd)/task-def.json" \
+            --query 'taskDefinition.revision' \
+            --output text)
+          
+          echo "revision=$NEW_REVISION" >> "$GITHUB_OUTPUT"
+      
       - name: Deploy to ECS
         run: |
+          set -euo pipefail
           aws ecs update-service \
-            --cluster it-assets-cluster \
-            --service it-assets-qa-api \
-            --task-definition it-assets-qa-api:${{ steps.update-task-def.outputs.revision }} \
-            --region us-west-2
-
+            --cluster tms-application-cluster \
+            --service tms-application-qa-api \
+            --task-definition "tms-application-qa-api:${{ steps.update-task-def.outputs.revision }}" \
+            --region "$AWS_REGION"
+      
       - name: Wait for deployment to complete
         run: |
+          set -euo pipefail
           aws ecs wait services-stable \
-            --cluster it-assets-cluster \
-            --services it-assets-qa-api \
-            --region us-west-2
+            --cluster tms-application-cluster \
+            --services tms-application-qa-api \
+            --region "$AWS_REGION"
