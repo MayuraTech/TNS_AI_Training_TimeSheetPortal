@@ -16,7 +16,7 @@ spring:
     properties:
       hibernate:
         default_schema: TMS4
-        dialect: org.hibernate.dialect.SQLServerDialect
+    open-in-view: false
 
   flyway:
     enabled: false
