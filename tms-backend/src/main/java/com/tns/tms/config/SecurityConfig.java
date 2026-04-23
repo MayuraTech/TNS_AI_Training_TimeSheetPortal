@@ -42,17 +42,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // NOTE: context-path (/qa/api) is stripped BEFORE Spring Security evaluates
-                        // requestMatchers. So paths here are relative to AFTER the context-path.
-                        .requestMatchers("/auth/**").permitAll()    // Full URL: /qa/api/auth/**
-                        // Swagger UI & SpringDoc — cover ALL paths Swagger UI internally requests
-                        .requestMatchers(
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/api-docs/**",
-                                "/v3/api-docs/**",       // SpringDoc default fallback path
-                                "/webjars/**"            // Swagger UI static assets (JS/CSS)
-                        ).permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/api-docs/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated());
 
