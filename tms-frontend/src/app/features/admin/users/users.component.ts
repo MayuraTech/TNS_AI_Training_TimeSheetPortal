@@ -266,8 +266,8 @@ export class UsersComponent implements OnInit {
   async load() {
     this.loading.set(true);
     try {
-      let url = '/api/admin/users?size=100';
-      if (this.search)       url += `&search=${encodeURIComponent(this.search)}`;
+      let url = '/qa/api/api/admin/users?size=100';
+      if (this.search) url += `&search=${encodeURIComponent(this.search)}`;
       if (this.statusFilter) url += `&status=${this.statusFilter}`;
       const res = await firstValueFrom(this.http.get<any>(url, { withCredentials: true }));
       const list = res.content ?? res ?? [];
@@ -325,7 +325,7 @@ export class UsersComponent implements OnInit {
           { withCredentials: true }
         ));
       } else {
-        await firstValueFrom(this.http.post('/api/admin/users',
+        await firstValueFrom(this.http.post('/qa/api/api/admin/users',
           { fullName: this.form.fullName, email: this.form.email, department: this.form.department, employeeId: this.form.employeeId, roles: this.form.roles },
           { withCredentials: true }
         ));
@@ -339,14 +339,14 @@ export class UsersComponent implements OnInit {
 
   async deactivate(id: number) {
     if (!confirm('Deactivate this user?')) return;
-    try { await firstValueFrom(this.http.post(`/api/admin/users/${id}/deactivate`, {}, { withCredentials: true })); this.load(); } catch {}
+    try { await firstValueFrom(this.http.post(`/qa/api/api/admin/users/${id}/deactivate`, {}, { withCredentials: true })); this.load(); } catch { }
   }
   async reactivate(id: number) {
-    try { await firstValueFrom(this.http.post(`/api/admin/users/${id}/reactivate`, {}, { withCredentials: true })); this.load(); } catch {}
+    try { await firstValueFrom(this.http.post(`/qa/api/api/admin/users/${id}/reactivate`, {}, { withCredentials: true })); this.load(); } catch { }
   }
   async resetPassword(id: number) {
     if (!confirm('Send password reset email?')) return;
-    try { await firstValueFrom(this.http.post(`/api/admin/users/${id}/reset-password`, {}, { withCredentials: true })); alert('✅ Reset email sent!'); } catch {}
+    try { await firstValueFrom(this.http.post(`/qa/api/api/admin/users/${id}/reset-password`, {}, { withCredentials: true })); alert('✅ Reset email sent!'); } catch { }
   }
 
   getInitials(name: string) { return (name ?? '').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2); }

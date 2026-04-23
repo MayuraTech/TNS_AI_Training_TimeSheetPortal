@@ -292,7 +292,7 @@ export class ProfileComponent {
     const p = this.pw.newPw;
     if (!p) return 0;
     let score = 0;
-    if (p.length >= 8)  score += 25;
+    if (p.length >= 8) score += 25;
     if (p.length >= 12) score += 15;
     if (/[A-Z]/.test(p)) score += 20;
     if (/[0-9]/.test(p)) score += 20;
@@ -321,7 +321,7 @@ export class ProfileComponent {
     this.pwSuccess.set(false);
 
     try {
-      await firstValueFrom(this.http.post('/api/auth/change-password', {
+      await firstValueFrom(this.http.post('/qa/api/api/auth/change-password', {
         currentPassword: this.pw.current,
         newPassword: this.pw.newPw
       }, { withCredentials: true }));

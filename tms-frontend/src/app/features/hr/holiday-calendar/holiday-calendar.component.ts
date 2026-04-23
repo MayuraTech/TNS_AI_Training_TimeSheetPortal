@@ -80,26 +80,26 @@ export class HolidayCalendarComponent implements OnInit {
 
   ngOnInit() { this.load(); }
   async load() {
-    try { this.holidays.set(await firstValueFrom(this.http.get<any[]>('/api/hr/holidays', {withCredentials:true})) ?? []); }
-    catch {} finally { this.loading.set(false); }
+    try { this.holidays.set(await firstValueFrom(this.http.get<any[]>('/qa/api/api/hr/holidays', { withCredentials: true })) ?? []); }
+    catch { } finally { this.loading.set(false); }
   }
 
   async addHoliday() {
     if (!this.form.name || !this.form.date) return;
     try {
-      await firstValueFrom(this.http.post('/api/hr/holidays', this.form, {withCredentials:true}));
-      this.showForm = false; this.form = {name:'',date:'',type:'PUBLIC',applicableTo:'ALL'}; this.load();
+      await firstValueFrom(this.http.post('/qa/api/api/hr/holidays', this.form, { withCredentials: true }));
+      this.showForm = false; this.form = { name: '', date: '', type: 'PUBLIC', applicableTo: 'ALL' }; this.load();
     } catch (e: any) { alert(e?.error?.error ?? 'Failed to add holiday'); }
   }
 
   async deleteHoliday(id: number) {
     if (!confirm('Delete this holiday?')) return;
-    try { await firstValueFrom(this.http.delete(`/api/hr/holidays/${id}`, {withCredentials:true})); this.load(); } catch {}
+    try { await firstValueFrom(this.http.delete(`/qa/api/api/hr/holidays/${id}`, { withCredentials: true })); this.load(); } catch { }
   }
 
   formatDate(d: string) {
     const [y, m, day] = d.substring(0, 10).split('-').map(Number);
     return new Date(y, m - 1, day).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' });
   }
-  typeClass(t: string) { return t==='PUBLIC'?'badge--approved':t==='COMPANY'?'badge--pending':'badge--no-entries'; }
+  typeClass(t: string) { return t === 'PUBLIC' ? 'badge--approved' : t === 'COMPANY' ? 'badge--pending' : 'badge--no-entries'; }
 }

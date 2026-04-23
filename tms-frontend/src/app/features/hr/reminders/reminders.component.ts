@@ -36,13 +36,13 @@ import { firstValueFrom } from 'rxjs';
 export class RemindersComponent {
   private readonly http = inject(HttpClient);
   sending = signal(false);
-  missingResult = signal<string|null>(null);
-  pendingResult = signal<string|null>(null);
+  missingResult = signal<string | null>(null);
+  pendingResult = signal<string | null>(null);
 
   async sendMissing() {
     this.sending.set(true);
     try {
-      const r = await firstValueFrom(this.http.post<any>('/api/hr/reminders/missing', {}, {withCredentials:true}));
+      const r = await firstValueFrom(this.http.post<any>('/qa/api/api/hr/reminders/missing', {}, { withCredentials: true }));
       this.missingResult.set(r.message ?? `Sent to ${r.recipientCount} employees`);
     } catch { this.missingResult.set('Failed to send reminders'); }
     finally { this.sending.set(false); }
@@ -51,7 +51,7 @@ export class RemindersComponent {
   async sendPending() {
     this.sending.set(true);
     try {
-      const r = await firstValueFrom(this.http.post<any>('/api/hr/reminders/pending-approvals', {}, {withCredentials:true}));
+      const r = await firstValueFrom(this.http.post<any>('/qa/api/api/hr/reminders/pending-approvals', {}, { withCredentials: true }));
       this.pendingResult.set(r.message ?? `Sent to ${r.recipientCount} managers`);
     } catch { this.pendingResult.set('Failed to send reminders'); }
     finally { this.sending.set(false); }

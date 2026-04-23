@@ -145,7 +145,7 @@ export class TeamReviewComponent implements OnInit {
       if (!map.has(d)) map.set(d, []);
       map.get(d)!.push(e);
     }
-    return Array.from(map.entries()).sort(([a],[b]) => a.localeCompare(b)).map(([date, entries]) => {
+    return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b)).map(([date, entries]) => {
       const totalHours = entries.reduce((s: number, e: any) => s + e.hours, 0);
       const statuses = entries.map((e: any) => e.status);
       const hasOvertime = totalHours > 9;
@@ -165,24 +165,24 @@ export class TeamReviewComponent implements OnInit {
   }
 
   async loadTeam() {
-    try { this.team.set(await firstValueFrom(this.http.get<any[]>('/api/manager/team', {withCredentials:true})) ?? []); } catch {}
+    try { this.team.set(await firstValueFrom(this.http.get<any[]>('/qa/api/api/manager/team', { withCredentials: true })) ?? []); } catch { }
   }
 
   async loadEntries() {
     if (!this.selectedEmployeeId) return;
     this.loading.set(true);
     try {
-      const res = await firstValueFrom(this.http.get<any[]>(`/api/manager/team/${this.selectedEmployeeId}/week?weekStart=${this.weekStart}`, {withCredentials:true}));
+      const res = await firstValueFrom(this.http.get<any[]>(`/qa/api/api/manager/team/${this.selectedEmployeeId}/week?weekStart=${this.weekStart}`, { withCredentials: true }));
       this.entries.set(res ?? []);
     } catch { this.entries.set([]); } finally { this.loading.set(false); }
   }
 
   async approveEntry(id: number) {
-    try { await firstValueFrom(this.http.post(`/api/approvals/entries/${id}/approve`, {}, {withCredentials:true})); this.loadEntries(); } catch {}
+    try { await firstValueFrom(this.http.post(`/qa/api/api/approvals/entries/${id}/approve`, {}, { withCredentials: true })); this.loadEntries(); } catch { }
   }
 
   async approveDay(date: string) {
-    try { await firstValueFrom(this.http.post(`/api/approvals/day/${this.selectedEmployeeId}/${date}/approve`, {}, {withCredentials:true})); this.loadEntries(); } catch {}
+    try { await firstValueFrom(this.http.post(`/qa/api/api/approvals/day/${this.selectedEmployeeId}/${date}/approve`, {}, { withCredentials: true })); this.loadEntries(); } catch { }
   }
 
   async bulkApproveAll() {
@@ -194,7 +194,7 @@ export class TeamReviewComponent implements OnInit {
     if (this.bulkRejectReason.trim().length < 10) return alert('Reason must be at least 10 characters');
     const pending = this.entries().filter(e => e.status === 'PENDING');
     for (const e of pending) {
-      try { await firstValueFrom(this.http.post(`/api/approvals/entries/${e.id}/reject`, {reason: this.bulkRejectReason}, {withCredentials:true})); } catch {}
+      try { await firstValueFrom(this.http.post(`/qa/api/api/approvals/entries/${e.id}/reject`, { reason: this.bulkRejectReason }, { withCredentials: true })); } catch { }
     }
     this.showBulkReject = false; this.bulkRejectReason = ''; this.loadEntries();
   }
@@ -203,14 +203,14 @@ export class TeamReviewComponent implements OnInit {
 
   async confirmReject() {
     if (!this.rejectEntryId || this.rejectReason.trim().length < 10) return;
-    try { await firstValueFrom(this.http.post(`/api/approvals/entries/${this.rejectEntryId}/reject`, {reason: this.rejectReason}, {withCredentials:true})); this.rejectEntryId = null; this.loadEntries(); } catch {}
+    try { await firstValueFrom(this.http.post(`/qa/api/api/approvals/entries/${this.rejectEntryId}/reject`, { reason: this.rejectReason }, { withCredentials: true })); this.rejectEntryId = null; this.loadEntries(); } catch { }
   }
 
   async requestClarification(id: number) {
-    try { await firstValueFrom(this.http.post(`/api/approvals/entries/${id}/clarify`, {}, {withCredentials:true})); this.loadEntries(); } catch {}
+    try { await firstValueFrom(this.http.post(`/qa/api/api/approvals/entries/${id}/clarify`, {}, { withCredentials: true })); this.loadEntries(); } catch { }
   }
 
-  formatDate(d: string) { return new Date(d+'T00:00:00').toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'}); }
-  badgeClass(s: string) { const m: any={PENDING:'pending',APPROVED:'approved',REJECTED:'rejected',CLARIFICATION_REQUESTED:'clarification',AUTO_APPROVED:'auto-approved',NO_ENTRIES:'no-entries'}; return m[s]??'no-entries'; }
-  private getMonday() { const d=new Date(),day=d.getDay(),diff=d.getDate()-day+(day===0?-6:1); return new Date(d.setDate(diff)).toISOString().split('T')[0]; }
+  formatDate(d: string) { return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }); }
+  badgeClass(s: string) { const m: any = { PENDING: 'pending', APPROVED: 'approved', REJECTED: 'rejected', CLARIFICATION_REQUESTED: 'clarification', AUTO_APPROVED: 'auto-approved', NO_ENTRIES: 'no-entries' }; return m[s] ?? 'no-entries'; }
+  private getMonday() { const d = new Date(), day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1); return new Date(d.setDate(diff)).toISOString().split('T')[0]; }
 }

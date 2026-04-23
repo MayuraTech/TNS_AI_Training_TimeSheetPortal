@@ -90,17 +90,17 @@ export class AuditLogComponent implements OnInit {
   async load() {
     this.loading.set(true);
     try {
-      let url = `/api/admin/audit-log?page=${this.page()}&size=20&sort=createdAt,desc`;
+      let url = `/qa/api/api/admin/audit-log?page=${this.page()}&size=20&sort=createdAt,desc`;
       if (this.filters.actionType) url += `&actionType=${this.filters.actionType}`;
       if (this.filters.entityType) url += `&entityType=${this.filters.entityType}`;
-      const res = await firstValueFrom(this.http.get<any>(url, {withCredentials:true}));
+      const res = await firstValueFrom(this.http.get<any>(url, { withCredentials: true }));
       this.logs.set(res.content ?? []);
       this.totalPages.set(res.totalPages ?? 1);
-    } catch {} finally { this.loading.set(false); }
+    } catch { } finally { this.loading.set(false); }
   }
 
-  clearFilters() { this.filters = {actionType:'',entityType:''}; this.page.set(0); this.load(); }
-  changePage(d: number) { this.page.update(p => p+d); this.load(); }
-  formatDate(d: string) { return new Date(d).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}); }
-  actionClass(a: string) { if(a.includes('APPROVED'))return'action-badge--green'; if(a.includes('REJECTED'))return'action-badge--red'; if(a.includes('LOGIN'))return'action-badge--blue'; return ''; }
+  clearFilters() { this.filters = { actionType: '', entityType: '' }; this.page.set(0); this.load(); }
+  changePage(d: number) { this.page.update(p => p + d); this.load(); }
+  formatDate(d: string) { return new Date(d).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); }
+  actionClass(a: string) { if (a.includes('APPROVED')) return 'action-badge--green'; if (a.includes('REJECTED')) return 'action-badge--red'; if (a.includes('LOGIN')) return 'action-badge--blue'; return ''; }
 }

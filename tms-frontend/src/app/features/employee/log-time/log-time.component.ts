@@ -473,7 +473,7 @@ export class LogTimeComponent implements OnInit {
   private async loadProjects(): Promise<void> {
     try {
       const data = await firstValueFrom(
-        this.http.get<Project[]>('/api/projects/active', { withCredentials: true })
+        this.http.get<Project[]>('/qa/api/api/projects/active', { withCredentials: true })
       );
       this.projects.set(Array.isArray(data) ? data : []);
     } catch {
@@ -540,7 +540,7 @@ export class LogTimeComponent implements OnInit {
           overtimeJustification: this.dailyTotal() > 9 ? this.overtimeJustification.trim() : null
         };
         const result = await firstValueFrom(
-          this.http.post<any>('/api/timesheets/entries', payload, { withCredentials: true })
+          this.http.post<any>('/qa/api/api/timesheets/entries', payload, { withCredentials: true })
         );
         successCount++;
         if (result.status === 'AUTO_APPROVED') autoApprovedCount++;

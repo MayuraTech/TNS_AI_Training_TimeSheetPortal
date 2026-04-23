@@ -16,7 +16,7 @@ export const jwtInterceptor: HttpInterceptorFn = (
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       // On 401, try silent refresh then retry
-      if (error.status === 401 && !req.url.includes('/api/auth/')) {
+      if (error.status === 401 && !req.url.includes('/qa/api/api/auth/')) {
         return from(authService.refresh()).pipe(
           switchMap(() => next(authReq)),
           catchError(refreshError => {

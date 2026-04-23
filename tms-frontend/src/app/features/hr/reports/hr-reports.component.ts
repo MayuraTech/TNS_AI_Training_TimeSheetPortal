@@ -65,19 +65,19 @@ export class HrReportsComponent {
   async generate() {
     this.generating.set(true);
     try {
-      const job = await firstValueFrom(this.http.post<any>('/api/hr/reports/generate', {reportType: this.reportType}, {withCredentials:true}));
+      const job = await firstValueFrom(this.http.post<any>('/qa/api/api/hr/reports/generate', { reportType: this.reportType }, { withCredentials: true }));
       this.jobs.update(j => [job, ...j]);
       setTimeout(() => this.pollStatus(job.id), 2000);
-    } catch {} finally { this.generating.set(false); }
+    } catch { } finally { this.generating.set(false); }
   }
 
   async pollStatus(id: number) {
     try {
-      const job = await firstValueFrom(this.http.get<any>(`/api/hr/reports/exports/${id}/status`, {withCredentials:true}));
+      const job = await firstValueFrom(this.http.get<any>(`/qa/api/api/hr/reports/exports/${id}/status`, { withCredentials: true }));
       this.jobs.update(j => j.map(x => x.id === id ? job : x));
-    } catch {}
+    } catch { }
   }
 
   formatDate(d: string) { return new Date(d).toLocaleString(); }
-  statusClass(s: string) { return s==='COMPLETED'?'approved':s==='FAILED'?'rejected':'pending'; }
+  statusClass(s: string) { return s === 'COMPLETED' ? 'approved' : s === 'FAILED' ? 'rejected' : 'pending'; }
 }

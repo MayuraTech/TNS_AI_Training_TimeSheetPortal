@@ -233,20 +233,20 @@ export class HistoryComponent implements OnInit {
 
   filters = { from: this.threeMonthsAgo(), to: '', status: '' };
 
-  pendingCount  = () => this.entries().filter(e => e.status === 'PENDING').length;
+  pendingCount = () => this.entries().filter(e => e.status === 'PENDING').length;
   approvedCount = () => this.entries().filter(e => e.status === 'APPROVED' || e.status === 'AUTO_APPROVED').length;
   rejectedCount = () => this.entries().filter(e => e.status === 'REJECTED').length;
-  totalHours    = () => this.entries().reduce((s, e) => s + (e.hours ?? 0), 0).toFixed(1);
-  hasFilters    = () => !!this.filters.status || !!this.filters.to;
+  totalHours = () => this.entries().reduce((s, e) => s + (e.hours ?? 0), 0).toFixed(1);
+  hasFilters = () => !!this.filters.status || !!this.filters.to;
 
   ngOnInit() { this.load(); }
 
   async load() {
     this.loading.set(true);
     try {
-      let url = `/api/timesheets/history?page=${this.page()}&size=20&sort=date,desc`;
+      let url = `/qa/api/api/timesheets/history?page=${this.page()}&size=20&sort=date,desc`;
       if (this.filters.from) url += `&from=${this.filters.from}`;
-      if (this.filters.to)   url += `&to=${this.filters.to}`;
+      if (this.filters.to) url += `&to=${this.filters.to}`;
       if (this.filters.status) url += `&status=${this.filters.status}`;
       const res = await firstValueFrom(this.http.get<any>(url, { withCredentials: true }));
       this.entries.set(res.content ?? []);
@@ -265,16 +265,16 @@ export class HistoryComponent implements OnInit {
     try {
       await firstValueFrom(this.http.delete(`/api/timesheets/entries/${id}`, { withCredentials: true }));
       this.load();
-    } catch {}
+    } catch { }
   }
 
   exportCsv() {
     const params = new URLSearchParams();
     if (this.filters.from) params.set('from', this.filters.from);
-    if (this.filters.to)   params.set('to', this.filters.to);
+    if (this.filters.to) params.set('to', this.filters.to);
     if (this.filters.status) params.set('status', this.filters.status);
     params.set('size', '1000');
-    window.open(`/api/timesheets/history?${params.toString()}`, '_blank');
+    window.open(`/qa/api/api/timesheets/history?${params.toString()}`, '_blank');
   }
 
   formatDate(d: string) {

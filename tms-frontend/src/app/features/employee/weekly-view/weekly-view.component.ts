@@ -133,7 +133,7 @@ export class WeeklyViewComponent implements OnInit {
     const [sy, sm, sd] = this.weekStart().split('-').map(Number);
     const s = new Date(sy, sm - 1, sd);
     const e = new Date(sy, sm - 1, sd + 6);
-    return `${s.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${e.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+    return `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
   });
 
   readonly days = computed((): DaySummary[] => {
@@ -142,7 +142,7 @@ export class WeeklyViewComponent implements OnInit {
     const holidayDates = new Set(this.holidays().map((h: any) => this.normalizeDate(h.date)));
     const holidayMap = new Map(this.holidays().map((h: any) => [this.normalizeDate(h.date), h.name]));
 
-    return Array.from({length: 7}, (_, i) => {
+    return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(start); d.setDate(d.getDate() + i);
       const dateStr = this.toLocalDateStr(d);  // Use LOCAL date, not UTC
       const dow = d.getDay();
@@ -158,8 +158,8 @@ export class WeeklyViewComponent implements OnInit {
 
       return {
         date: dateStr,
-        label: d.toLocaleDateString('en-US', {month:'short', day:'numeric'}),
-        dayOfWeek: d.toLocaleDateString('en-US', {weekday:'short'}),
+        label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        dayOfWeek: d.toLocaleDateString('en-US', { weekday: 'short' }),
         entries: dayEntries.map((e: any) => ({
           id: e.id, taskName: e.taskName, hours: e.hours, status: e.status
         })),
@@ -175,8 +175,8 @@ export class WeeklyViewComponent implements OnInit {
     this.loading.set(true);
     try {
       const [entriesRes, holidaysRes] = await Promise.all([
-        firstValueFrom(this.http.get<any[]>(`/api/timesheets/week?weekStart=${this.weekStart()}`, {withCredentials:true})),
-        firstValueFrom(this.http.get<any[]>('/api/hr/holidays', {withCredentials:true}))
+        firstValueFrom(this.http.get<any[]>(`/qa/api/api/timesheets/week?weekStart=${this.weekStart()}`, { withCredentials: true })),
+        firstValueFrom(this.http.get<any[]>('/qa/api/api/hr/holidays', { withCredentials: true }))
       ]);
       this.entries.set(entriesRes ?? []);
       this.holidays.set(holidaysRes ?? []);
@@ -184,12 +184,12 @@ export class WeeklyViewComponent implements OnInit {
     finally { this.loading.set(false); }
   }
 
-  prevWeek() { const d = new Date(this.weekStart()+'T00:00:00'); d.setDate(d.getDate()-7); this.weekStart.set(this.toLocalDateStr(d)); this.load(); }
-  nextWeek() { const d = new Date(this.weekStart()+'T00:00:00'); d.setDate(d.getDate()+7); this.weekStart.set(this.toLocalDateStr(d)); this.load(); }
+  prevWeek() { const d = new Date(this.weekStart() + 'T00:00:00'); d.setDate(d.getDate() - 7); this.weekStart.set(this.toLocalDateStr(d)); this.load(); }
+  nextWeek() { const d = new Date(this.weekStart() + 'T00:00:00'); d.setDate(d.getDate() + 7); this.weekStart.set(this.toLocalDateStr(d)); this.load(); }
   goToCurrentWeek() { this.weekStart.set(this.getMonday(new Date())); this.load(); }
   isCurrentWeek() { return this.weekStart() === this.getMonday(new Date()); }
 
-  statusLabel(s: string) { return s.replace('_',' ').replace('CLARIFICATION REQUESTED','CLARIFICATION'); }
+  statusLabel(s: string) { return s.replace('_', ' ').replace('CLARIFICATION REQUESTED', 'CLARIFICATION'); }
 
   private computeDayStatus(statuses: string[]): string {
     if (!statuses.length) return 'NO_ENTRIES';

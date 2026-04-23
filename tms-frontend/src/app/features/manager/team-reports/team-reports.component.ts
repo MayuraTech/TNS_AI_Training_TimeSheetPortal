@@ -75,24 +75,24 @@ export class TeamReportsComponent implements OnInit {
   ngOnInit() { this.loadTeam(); }
 
   async loadTeam() {
-    try { this.team.set(await firstValueFrom(this.http.get<any[]>('/api/manager/team', {withCredentials:true})) ?? []); } catch {}
+    try { this.team.set(await firstValueFrom(this.http.get<any[]>('/qa/api/api/manager/team', { withCredentials: true })) ?? []); } catch { }
   }
 
   async load() {
     this.loading.set(true);
     try {
       // Use the weekly view endpoint per employee or history
-      let url = `/api/timesheets/history?size=100`;
+      let url = `/qa/api/api/timesheets/history?size=100`;
       if (this.filters.from) url += `&from=${this.filters.from}`;
       if (this.filters.to) url += `&to=${this.filters.to}`;
       if (this.filters.status) url += `&status=${this.filters.status}`;
-      const res = await firstValueFrom(this.http.get<any>(url, {withCredentials:true}));
+      const res = await firstValueFrom(this.http.get<any>(url, { withCredentials: true }));
       this.entries.set(res.content ?? []);
-    } catch {} finally { this.loading.set(false); }
+    } catch { } finally { this.loading.set(false); }
   }
 
-  exportCsv() { window.open(`/api/timesheets/history?export=csv&from=${this.filters.from}`, '_blank'); }
-  formatDate(d: string) { return new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
-  badgeClass(s: string) { const m: any={PENDING:'pending',APPROVED:'approved',REJECTED:'rejected',CLARIFICATION_REQUESTED:'clarification',AUTO_APPROVED:'auto-approved'}; return m[s]??'no-entries'; }
-  private monthAgo() { const d=new Date(); d.setMonth(d.getMonth()-1); return d.toISOString().split('T')[0]; }
+  exportCsv() { window.open(`/qa/api/api/timesheets/history?export=csv&from=${this.filters.from}`, '_blank'); }
+  formatDate(d: string) { return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+  badgeClass(s: string) { const m: any = { PENDING: 'pending', APPROVED: 'approved', REJECTED: 'rejected', CLARIFICATION_REQUESTED: 'clarification', AUTO_APPROVED: 'auto-approved' }; return m[s] ?? 'no-entries'; }
+  private monthAgo() { const d = new Date(); d.setMonth(d.getMonth() - 1); return d.toISOString().split('T')[0]; }
 }
