@@ -38,16 +38,32 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // Disable CSRF for stateless JWT authentication
                 .csrf(AbstractHttpConfigurer::disable)
+
+                // Configure CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // Configure session management (stateless)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Configure authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/api-docs/**").permitAll()
-                        .requestMatchers("/actuator/**").permitAll()
+                        // Allow OPTIONS requests for CORS preflight
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        // Public endpoints
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/api-docs/**",
+                                "/actuator/**")
+                        .permitAll()
+                        // All other endpoints require authentication
                         .anyRequest().authenticated());
 
-        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        // Add JWT authentication filter before UsernamePasswordAuthenticationFilter
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -65,14 +81,31 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+
+        // Use permissive origin patterns for deployment to resolve all CORS issues.
+        // allowCredentials(true) is compatible with setAllowedOriginPatterns("*").
+        configuration.setAllowedOriginPatterns(List.of("*"));
+
+        // Allowed HTTP methods
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
+
+        // Allowed headers
         configuration.setAllowedHeaders(List.of("*"));
+
+        // Exposed headers (important for client to read certain response headers)
+        configuration.setExposedHeaders(List.of("Authorization", "Content-Type", "X-Total-Count"));
+
+        // Allow credentials (cookies, authorization headers)
         configuration.setAllowCredentials(true);
+
+        // Max age for preflight requests (1 hour)
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // Register for all paths - Spring Security sees paths relative to servlet
+        // context
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 }
