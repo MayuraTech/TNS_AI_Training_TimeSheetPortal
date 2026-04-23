@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/approvals")
+@RequestMapping("/approvals")
 @Tag(name = "Approvals", description = "Manager approval workflow")
 @PreAuthorize("hasRole('MANAGER')")
 public class ApprovalController {

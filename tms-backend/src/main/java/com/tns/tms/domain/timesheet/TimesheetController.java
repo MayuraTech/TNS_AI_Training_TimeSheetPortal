@@ -21,7 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/timesheets")
+@RequestMapping("/timesheets")
 @Tag(name = "Timesheets", description = "Timesheet entry management")
 public class TimesheetController {
 

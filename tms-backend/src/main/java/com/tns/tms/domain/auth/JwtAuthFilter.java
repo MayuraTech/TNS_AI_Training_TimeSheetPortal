@@ -41,11 +41,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
+        String contextPath = request.getContextPath();
+
+        // Remove context path from URI to get the relative path
+        String relativePath = path.substring(contextPath.length());
+
         // Skip JWT filter for public auth endpoints
-        return path.startsWith("/api/auth/") ||
-               path.startsWith("/swagger-ui") ||
-               path.startsWith("/api-docs") ||
-               path.startsWith("/actuator");
+        return relativePath.startsWith("/api/auth/") ||
+                relativePath.startsWith("/swagger-ui") ||
+                relativePath.startsWith("/api-docs") ||
+                relativePath.startsWith("/actuator");
     }
 
     @Override
@@ -66,8 +71,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
                                 .toList();
 
-                        UsernamePasswordAuthenticationToken authToken =
-                                new UsernamePasswordAuthenticationToken(user, null, authorities);
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user,
+                                null, authorities);
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
@@ -82,7 +87,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private Optional<String> extractJwtFromCookie(HttpServletRequest request) {
-        if (request.getCookies() == null) return Optional.empty();
+        if (request.getCookies() == null)
+            return Optional.empty();
         return Arrays.stream(request.getCookies())
                 .filter(c -> JWT_COOKIE_NAME.equals(c.getName()))
                 .map(Cookie::getValue)

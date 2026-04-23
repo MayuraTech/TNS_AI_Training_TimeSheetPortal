@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 
 @RestController
-@RequestMapping("/api/admin/audit-log")
+@RequestMapping("/admin/audit-log")
 @Tag(name = "Audit Log", description = "Immutable audit log viewer")
 @PreAuthorize("hasRole('ADMIN')")
 public class AuditLogController {

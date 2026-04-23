@@ -25,14 +25,14 @@ public class ProjectController {
     }
 
     /** All authenticated users can fetch active projects (for dropdowns) */
-    @GetMapping("/api/projects/active")
+    @GetMapping("/projects/active")
     @Operation(summary = "Get active projects for current user")
     public ResponseEntity<List<Project>> getActiveProjects() {
         return ResponseEntity.ok(projectRepository.findByStatus(ProjectStatus.ACTIVE));
     }
 
     /** Admin-only full project list */
-    @GetMapping("/api/admin/projects")
+    @GetMapping("/admin/projects")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "List all projects (Admin)")
     public ResponseEntity<List<Project>> listProjects(
@@ -43,7 +43,7 @@ public class ProjectController {
         return ResponseEntity.ok(projectRepository.findAll());
     }
 
-    @PostMapping("/api/admin/projects")
+    @PostMapping("/admin/projects")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create project")
     public ResponseEntity<Project> createProject(
@@ -54,12 +54,11 @@ public class ProjectController {
         Project project = projectService.createProject(
                 currentUser.getId(),
                 body.get("name"), body.get("code"), body.get("client"),
-                startDate, endDate
-        );
+                startDate, endDate);
         return ResponseEntity.ok(project);
     }
 
-    @PostMapping("/api/admin/projects/{id}/archive")
+    @PostMapping("/admin/projects/{id}/archive")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Archive project")
     public ResponseEntity<Project> archiveProject(
@@ -68,7 +67,7 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.archiveProject(currentUser.getId(), id));
     }
 
-    @PostMapping("/api/admin/projects/{id}/restore")
+    @PostMapping("/admin/projects/{id}/restore")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Restore archived project")
     public ResponseEntity<Project> restoreProject(

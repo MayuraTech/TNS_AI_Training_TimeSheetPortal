@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/hr/holidays")
+@RequestMapping("/hr/holidays")
 @Tag(name = "Holiday Calendar", description = "Organisation holiday calendar management")
 public class HolidayCalendarController {
 
@@ -29,8 +29,10 @@ public class HolidayCalendarController {
     public ResponseEntity<List<HolidayCalendar>> getHolidays(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        if (from == null) from = LocalDate.now().withDayOfYear(1);
-        if (to == null) to = LocalDate.now().withDayOfYear(1).plusYears(1).minusDays(1);
+        if (from == null)
+            from = LocalDate.now().withDayOfYear(1);
+        if (to == null)
+            to = LocalDate.now().withDayOfYear(1).plusYears(1).minusDays(1);
         return ResponseEntity.ok(holidayCalendarService.getHolidays(from, to));
     }
 
@@ -45,8 +47,7 @@ public class HolidayCalendarController {
                 body.get("name"),
                 LocalDate.parse(body.get("date")),
                 HolidayType.valueOf(body.get("type")),
-                body.get("applicableTo")
-        );
+                body.get("applicableTo"));
         return ResponseEntity.ok(holiday);
     }
 

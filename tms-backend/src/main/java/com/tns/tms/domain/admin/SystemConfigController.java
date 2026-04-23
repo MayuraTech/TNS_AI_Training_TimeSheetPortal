@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin/config")
+@RequestMapping("/admin/config")
 @Tag(name = "System Config", description = "System configuration management")
 @PreAuthorize("hasRole('ADMIN')")
 public class SystemConfigController {

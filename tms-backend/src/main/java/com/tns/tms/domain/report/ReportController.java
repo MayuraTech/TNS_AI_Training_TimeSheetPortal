@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/hr/reports")
+@RequestMapping("/hr/reports")
 @Tag(name = "Reports", description = "HR report generation")
 @PreAuthorize("hasRole('HR')")
 public class ReportController {

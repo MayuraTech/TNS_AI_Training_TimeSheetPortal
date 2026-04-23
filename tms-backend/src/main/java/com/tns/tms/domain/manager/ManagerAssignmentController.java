@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin/manager-assignments")
+@RequestMapping("/admin/manager-assignments")
 @Tag(name = "Manager Assignments", description = "Manager-employee assignment management")
 @PreAuthorize("hasRole('ADMIN')")
 public class ManagerAssignmentController {
@@ -21,7 +21,7 @@ public class ManagerAssignmentController {
     private final ManagerAssignmentService managerAssignmentService;
 
     public ManagerAssignmentController(ManagerAssignmentRepository managerAssignmentRepository,
-                                        ManagerAssignmentService managerAssignmentService) {
+            ManagerAssignmentService managerAssignmentService) {
         this.managerAssignmentRepository = managerAssignmentRepository;
         this.managerAssignmentService = managerAssignmentService;
     }
@@ -33,14 +33,14 @@ public class ManagerAssignmentController {
         List<Map<String, Object>> result = assignments.stream().map(a -> {
             Map<String, Object> m = new java.util.HashMap<>();
             m.put("id", a.getId());
-            m.put("employeeId",    a.getEmployee() != null ? a.getEmployee().getId() : null);
-            m.put("employeeName",  a.getEmployee() != null ? a.getEmployee().getFullName() : null);
+            m.put("employeeId", a.getEmployee() != null ? a.getEmployee().getId() : null);
+            m.put("employeeName", a.getEmployee() != null ? a.getEmployee().getFullName() : null);
             m.put("employeeEmail", a.getEmployee() != null ? a.getEmployee().getEmail() : null);
-            m.put("managerId",     a.getManager() != null ? a.getManager().getId() : null);
-            m.put("managerName",   a.getManager() != null ? a.getManager().getFullName() : null);
-            m.put("managerEmail",  a.getManager() != null ? a.getManager().getEmail() : null);
+            m.put("managerId", a.getManager() != null ? a.getManager().getId() : null);
+            m.put("managerName", a.getManager() != null ? a.getManager().getFullName() : null);
+            m.put("managerEmail", a.getManager() != null ? a.getManager().getEmail() : null);
             m.put("effectiveFrom", a.getEffectiveFrom());
-            m.put("effectiveTo",   a.getEffectiveTo());
+            m.put("effectiveTo", a.getEffectiveTo());
             return m;
         }).toList();
         return ResponseEntity.ok(result);
@@ -52,7 +52,7 @@ public class ManagerAssignmentController {
             @RequestBody Map<String, Object> body,
             @AuthenticationPrincipal User currentUser) {
         Long employeeId = Long.valueOf(body.get("employeeId").toString());
-        Long managerId  = Long.valueOf(body.get("managerId").toString());
+        Long managerId = Long.valueOf(body.get("managerId").toString());
 
         ManagerAssignment assignment = managerAssignmentService.assignManager(
                 currentUser.getId(), employeeId, managerId);
@@ -60,7 +60,7 @@ public class ManagerAssignmentController {
         Map<String, Object> result = new java.util.HashMap<>();
         result.put("id", assignment.getId());
         result.put("employeeId", employeeId);
-        result.put("managerId",  managerId);
+        result.put("managerId", managerId);
         result.put("effectiveFrom", assignment.getEffectiveFrom());
         return ResponseEntity.ok(result);
     }
@@ -73,8 +73,8 @@ public class ManagerAssignmentController {
 
         List<Map<String, Object>> result = active.stream().map(a -> {
             Map<String, Object> m = new java.util.HashMap<>();
-            m.put("employeeId",   a.getEmployee() != null ? a.getEmployee().getId() : null);
-            m.put("managerId",    a.getManager() != null ? a.getManager().getId() : null);
+            m.put("employeeId", a.getEmployee() != null ? a.getEmployee().getId() : null);
+            m.put("managerId", a.getManager() != null ? a.getManager().getId() : null);
             return m;
         }).toList();
         return ResponseEntity.ok(result);

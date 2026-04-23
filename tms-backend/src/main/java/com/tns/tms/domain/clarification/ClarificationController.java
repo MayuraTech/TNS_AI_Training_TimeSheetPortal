@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/clarifications")
+@RequestMapping("/clarifications")
 @Tag(name = "Clarifications", description = "Clarification thread management")
 public class ClarificationController {
 

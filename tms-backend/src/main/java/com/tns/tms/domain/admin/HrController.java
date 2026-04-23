@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/hr")
+@RequestMapping("/hr")
 @Tag(name = "HR", description = "HR dashboard and reports")
 @PreAuthorize("hasRole('HR')")
 public class HrController {
@@ -35,8 +35,10 @@ public class HrController {
             @PathVariable Long id,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        if (from == null) from = LocalDate.now().minusDays(30);
-        if (to == null) to = LocalDate.now();
+        if (from == null)
+            from = LocalDate.now().minusDays(30);
+        if (to == null)
+            to = LocalDate.now();
         return ResponseEntity.ok(hrService.getEmployeeDailySummary(id, from, to));
     }
 }

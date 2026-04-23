@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/manager")
+@RequestMapping("/manager")
 @Tag(name = "Manager", description = "Manager dashboard and team review")
 @PreAuthorize("hasRole('MANAGER')")
 public class ManagerController {

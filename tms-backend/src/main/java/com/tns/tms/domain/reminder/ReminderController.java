@@ -7,13 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
 @Tag(name = "Reminders", description = "Reminder management for HR and Managers")
 public class ReminderController {
 
@@ -29,7 +27,8 @@ public class ReminderController {
     public ResponseEntity<Map<String, Object>> sendMissingEntryReminderOrgWide(
             @AuthenticationPrincipal User currentUser) {
         int count = reminderService.sendMissingEntryReminderOrgWide(currentUser);
-        return ResponseEntity.ok(Map.of("recipientCount", count, "message", "Reminders sent to " + count + " employees"));
+        return ResponseEntity
+                .ok(Map.of("recipientCount", count, "message", "Reminders sent to " + count + " employees"));
     }
 
     @PostMapping("/hr/reminders/pending-approvals")
@@ -38,7 +37,8 @@ public class ReminderController {
     public ResponseEntity<Map<String, Object>> sendPendingApprovalReminder(
             @AuthenticationPrincipal User currentUser) {
         int count = reminderService.sendPendingApprovalReminder(currentUser);
-        return ResponseEntity.ok(Map.of("recipientCount", count, "message", "Reminders sent to " + count + " managers"));
+        return ResponseEntity
+                .ok(Map.of("recipientCount", count, "message", "Reminders sent to " + count + " managers"));
     }
 
     @PostMapping("/manager/reminders/missing")
@@ -47,6 +47,7 @@ public class ReminderController {
     public ResponseEntity<Map<String, Object>> sendMissingEntryReminderToDirectReports(
             @AuthenticationPrincipal User currentUser) {
         int count = reminderService.sendMissingEntryReminderToDirectReports(currentUser);
-        return ResponseEntity.ok(Map.of("recipientCount", count, "message", "Reminders sent to " + count + " direct reports"));
+        return ResponseEntity
+                .ok(Map.of("recipientCount", count, "message", "Reminders sent to " + count + " direct reports"));
     }
 }

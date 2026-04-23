@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/admin/users")
+@RequestMapping("/admin/users")
 @Tag(name = "User Management", description = "Admin user management")
 @PreAuthorize("hasRole('ADMIN')")
 public class UserController {
@@ -55,8 +55,7 @@ public class UserController {
                 roles,
                 body.get("managerId") != null ? Long.valueOf(body.get("managerId").toString()) : null,
                 (String) body.get("department"),
-                (String) body.get("employeeId")
-        );
+                (String) body.get("employeeId"));
         return ResponseEntity.ok(created);
     }
 
@@ -79,8 +78,7 @@ public class UserController {
                 (String) body.get("email"),
                 (String) body.get("department"),
                 (String) body.get("employeeId"),
-                roles
-        );
+                roles);
         return ResponseEntity.ok(updated);
     }
 
