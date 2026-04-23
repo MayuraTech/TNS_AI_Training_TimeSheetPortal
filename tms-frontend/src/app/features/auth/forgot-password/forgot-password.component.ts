@@ -92,7 +92,7 @@ export class ForgotPasswordComponent {
     if (!this.email) return;
     this.loading.set(true);
     try {
-      await firstValueFrom(this.http.post('/qa/api/api/auth/forgot-password', { email: this.email }));
+      await firstValueFrom(this.http.post('/qa/api/auth/forgot-password', { email: this.email }));
     } finally {
       this.loading.set(false);
       this.submitted.set(true);

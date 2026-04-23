@@ -74,8 +74,8 @@ export class ManagerDashboardComponent implements OnInit {
     this.loading.set(true);
     try {
       const [kpisRes, teamRes] = await Promise.all([
-        firstValueFrom(this.http.get<any>('/qa/api/api/manager/dashboard', { withCredentials: true })),
-        firstValueFrom(this.http.get<any[]>('/qa/api/api/manager/team', { withCredentials: true }))
+        firstValueFrom(this.http.get<any>('/qa/api/manager/dashboard', { withCredentials: true })),
+        firstValueFrom(this.http.get<any[]>('/qa/api/manager/team', { withCredentials: true }))
       ]);
       this.kpis.set(kpisRes);
       const sorted = (teamRes ?? []).sort((a: any, b: any) => b.pendingCount - a.pendingCount);

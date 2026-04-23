@@ -244,7 +244,7 @@ export class HistoryComponent implements OnInit {
   async load() {
     this.loading.set(true);
     try {
-      let url = `/qa/api/api/timesheets/history?page=${this.page()}&size=20&sort=date,desc`;
+      let url = `/qa/api/timesheets/history?page=${this.page()}&size=20&sort=date,desc`;
       if (this.filters.from) url += `&from=${this.filters.from}`;
       if (this.filters.to) url += `&to=${this.filters.to}`;
       if (this.filters.status) url += `&status=${this.filters.status}`;
@@ -274,7 +274,7 @@ export class HistoryComponent implements OnInit {
     if (this.filters.to) params.set('to', this.filters.to);
     if (this.filters.status) params.set('status', this.filters.status);
     params.set('size', '1000');
-    window.open(`/qa/api/api/timesheets/history?${params.toString()}`, '_blank');
+    window.open(`/qa/api/timesheets/history?${params.toString()}`, '_blank');
   }
 
   formatDate(d: string) {

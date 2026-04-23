@@ -321,7 +321,7 @@ export class ProfileComponent {
     this.pwSuccess.set(false);
 
     try {
-      await firstValueFrom(this.http.post('/qa/api/api/auth/change-password', {
+      await firstValueFrom(this.http.post('/qa/api/auth/change-password', {
         currentPassword: this.pw.current,
         newPassword: this.pw.newPw
       }, { withCredentials: true }));

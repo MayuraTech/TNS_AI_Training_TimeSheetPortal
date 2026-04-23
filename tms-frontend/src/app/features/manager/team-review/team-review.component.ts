@@ -165,24 +165,24 @@ export class TeamReviewComponent implements OnInit {
   }
 
   async loadTeam() {
-    try { this.team.set(await firstValueFrom(this.http.get<any[]>('/qa/api/api/manager/team', { withCredentials: true })) ?? []); } catch { }
+    try { this.team.set(await firstValueFrom(this.http.get<any[]>('/qa/api/manager/team', { withCredentials: true })) ?? []); } catch { }
   }
 
   async loadEntries() {
     if (!this.selectedEmployeeId) return;
     this.loading.set(true);
     try {
-      const res = await firstValueFrom(this.http.get<any[]>(`/qa/api/api/manager/team/${this.selectedEmployeeId}/week?weekStart=${this.weekStart}`, { withCredentials: true }));
+      const res = await firstValueFrom(this.http.get<any[]>(`/qa/api/manager/team/${this.selectedEmployeeId}/week?weekStart=${this.weekStart}`, { withCredentials: true }));
       this.entries.set(res ?? []);
     } catch { this.entries.set([]); } finally { this.loading.set(false); }
   }
 
   async approveEntry(id: number) {
-    try { await firstValueFrom(this.http.post(`/qa/api/api/approvals/entries/${id}/approve`, {}, { withCredentials: true })); this.loadEntries(); } catch { }
+    try { await firstValueFrom(this.http.post(`/qa/api/approvals/entries/${id}/approve`, {}, { withCredentials: true })); this.loadEntries(); } catch { }
   }
 
   async approveDay(date: string) {
-    try { await firstValueFrom(this.http.post(`/qa/api/api/approvals/day/${this.selectedEmployeeId}/${date}/approve`, {}, { withCredentials: true })); this.loadEntries(); } catch { }
+    try { await firstValueFrom(this.http.post(`/qa/api/approvals/day/${this.selectedEmployeeId}/${date}/approve`, {}, { withCredentials: true })); this.loadEntries(); } catch { }
   }
 
   async bulkApproveAll() {
@@ -194,7 +194,7 @@ export class TeamReviewComponent implements OnInit {
     if (this.bulkRejectReason.trim().length < 10) return alert('Reason must be at least 10 characters');
     const pending = this.entries().filter(e => e.status === 'PENDING');
     for (const e of pending) {
-      try { await firstValueFrom(this.http.post(`/qa/api/api/approvals/entries/${e.id}/reject`, { reason: this.bulkRejectReason }, { withCredentials: true })); } catch { }
+      try { await firstValueFrom(this.http.post(`/qa/api/approvals/entries/${e.id}/reject`, { reason: this.bulkRejectReason }, { withCredentials: true })); } catch { }
     }
     this.showBulkReject = false; this.bulkRejectReason = ''; this.loadEntries();
   }
@@ -203,11 +203,11 @@ export class TeamReviewComponent implements OnInit {
 
   async confirmReject() {
     if (!this.rejectEntryId || this.rejectReason.trim().length < 10) return;
-    try { await firstValueFrom(this.http.post(`/qa/api/api/approvals/entries/${this.rejectEntryId}/reject`, { reason: this.rejectReason }, { withCredentials: true })); this.rejectEntryId = null; this.loadEntries(); } catch { }
+    try { await firstValueFrom(this.http.post(`/qa/api/approvals/entries/${this.rejectEntryId}/reject`, { reason: this.rejectReason }, { withCredentials: true })); this.rejectEntryId = null; this.loadEntries(); } catch { }
   }
 
   async requestClarification(id: number) {
-    try { await firstValueFrom(this.http.post(`/qa/api/api/approvals/entries/${id}/clarify`, {}, { withCredentials: true })); this.loadEntries(); } catch { }
+    try { await firstValueFrom(this.http.post(`/qa/api/approvals/entries/${id}/clarify`, {}, { withCredentials: true })); this.loadEntries(); } catch { }
   }
 
   formatDate(d: string) { return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }); }

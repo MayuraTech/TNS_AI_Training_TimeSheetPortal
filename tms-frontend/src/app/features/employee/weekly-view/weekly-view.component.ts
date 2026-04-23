@@ -175,8 +175,8 @@ export class WeeklyViewComponent implements OnInit {
     this.loading.set(true);
     try {
       const [entriesRes, holidaysRes] = await Promise.all([
-        firstValueFrom(this.http.get<any[]>(`/qa/api/api/timesheets/week?weekStart=${this.weekStart()}`, { withCredentials: true })),
-        firstValueFrom(this.http.get<any[]>('/qa/api/api/hr/holidays', { withCredentials: true }))
+        firstValueFrom(this.http.get<any[]>(`/qa/api/timesheets/week?weekStart=${this.weekStart()}`, { withCredentials: true })),
+        firstValueFrom(this.http.get<any[]>('/qa/api/hr/holidays', { withCredentials: true }))
       ]);
       this.entries.set(entriesRes ?? []);
       this.holidays.set(holidaysRes ?? []);

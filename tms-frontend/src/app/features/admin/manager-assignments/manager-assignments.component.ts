@@ -127,8 +127,8 @@ export class ManagerAssignmentsComponent implements OnInit {
     this.loading.set(true);
     try {
       const [usersRes, assignmentsRes] = await Promise.all([
-        firstValueFrom(this.http.get<any>('/qa/api/api/admin/users?size=100', { withCredentials: true })),
-        firstValueFrom(this.http.get<any[]>('/qa/api/api/admin/manager-assignments', { withCredentials: true }))
+        firstValueFrom(this.http.get<any>('/qa/api/admin/users?size=100', { withCredentials: true })),
+        firstValueFrom(this.http.get<any[]>('/qa/api/admin/manager-assignments', { withCredentials: true }))
       ]);
 
       const users = usersRes.content ?? usersRes ?? [];
@@ -152,7 +152,7 @@ export class ManagerAssignmentsComponent implements OnInit {
     this.successMsg.set(null);
 
     try {
-      await firstValueFrom(this.http.post('/qa/api/api/admin/manager-assignments', {
+      await firstValueFrom(this.http.post('/qa/api/admin/manager-assignments', {
         employeeId: this.form.employeeId,
         managerId: this.form.managerId
       }, { withCredentials: true }));

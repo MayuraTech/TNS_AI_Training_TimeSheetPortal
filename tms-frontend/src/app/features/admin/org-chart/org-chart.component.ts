@@ -160,8 +160,8 @@ export class OrgChartComponent implements OnInit {
     try {
       // Build org tree from users + manager assignments
       const [usersRes, assignmentsRes] = await Promise.all([
-        firstValueFrom(this.http.get<any>('/qa/api/api/admin/users?size=100', { withCredentials: true })),
-        firstValueFrom(this.http.get<any[]>('/qa/api/api/admin/manager-assignments', { withCredentials: true }))
+        firstValueFrom(this.http.get<any>('/qa/api/admin/users?size=100', { withCredentials: true })),
+        firstValueFrom(this.http.get<any[]>('/qa/api/admin/manager-assignments', { withCredentials: true }))
       ]);
 
       const users: any[] = usersRes.content ?? usersRes ?? [];

@@ -265,7 +265,7 @@ export class EmployeeDashboardComponent implements OnInit {
   private async loadDashboard(): Promise<void> {
     try {
       const data = await firstValueFrom(
-        this.http.get<EmployeeDashboard>('/qa/api/api/timesheets/dashboard', { withCredentials: true })
+        this.http.get<EmployeeDashboard>('/qa/api/timesheets/dashboard', { withCredentials: true })
       );
       this.dashboard.set(data ?? null);
     } catch {

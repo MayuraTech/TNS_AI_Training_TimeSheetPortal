@@ -91,14 +91,14 @@ export class SystemConfigComponent implements OnInit {
   ngOnInit() { this.load(); }
 
   async load() {
-    try { this.config = await firstValueFrom(this.http.get<Record<string, string>>('/qa/api/api/admin/config', { withCredentials: true })) ?? {}; }
+    try { this.config = await firstValueFrom(this.http.get<Record<string, string>>('/qa/api/admin/config', { withCredentials: true })) ?? {}; }
     catch { } finally { this.loading.set(false); }
   }
 
   async saveAll() {
     this.saving.set(true); this.saved.set(false);
     try {
-      await firstValueFrom(this.http.put('/qa/api/api/admin/config', this.config, { withCredentials: true }));
+      await firstValueFrom(this.http.put('/qa/api/admin/config', this.config, { withCredentials: true }));
       this.saved.set(true);
       setTimeout(() => this.saved.set(false), 3000);
     } catch { } finally { this.saving.set(false); }

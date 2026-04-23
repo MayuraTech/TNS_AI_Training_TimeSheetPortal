@@ -22,7 +22,7 @@ export class AuthService {
 
   async login(request: LoginRequest): Promise<User> {
     const user = await firstValueFrom(
-      this.http.post<User>('/qa/api/api/auth/login', request, { withCredentials: true })
+      this.http.post<User>('/qa/api/auth/login', request, { withCredentials: true })
     );
     this._user.set(user);
     this.saveToStorage(user);
@@ -31,7 +31,7 @@ export class AuthService {
 
   async logout(): Promise<void> {
     try {
-      await firstValueFrom(this.http.post('/qa/api/api/auth/logout', {}, { withCredentials: true }));
+      await firstValueFrom(this.http.post('/qa/api/auth/logout', {}, { withCredentials: true }));
     } finally {
       this._user.set(null);
       sessionStorage.removeItem('tms_user');
@@ -41,7 +41,7 @@ export class AuthService {
 
   async refresh(): Promise<void> {
     try {
-      await firstValueFrom(this.http.post('/qa/api/api/auth/refresh', {}, { withCredentials: true }));
+      await firstValueFrom(this.http.post('/qa/api/auth/refresh', {}, { withCredentials: true }));
     } catch {
       this._user.set(null);
       this.router.navigate(['/auth/login']);
@@ -50,7 +50,7 @@ export class AuthService {
 
   async changePassword(request: ChangePasswordRequest): Promise<void> {
     await firstValueFrom(
-      this.http.post('/qa/api/api/auth/change-password', request, { withCredentials: true })
+      this.http.post('/qa/api/auth/change-password', request, { withCredentials: true })
     );
     const user = this._user();
     if (user) {

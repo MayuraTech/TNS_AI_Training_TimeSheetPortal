@@ -84,7 +84,7 @@ export class ProjectsComponent implements OnInit {
   async load() {
     this.loading.set(true);
     try {
-      let url = '/qa/api/api/admin/projects';
+      let url = '/qa/api/admin/projects';
       if (this.filter) url += `?status=${this.filter}`;
       const res = await firstValueFrom(this.http.get<any>(url, { withCredentials: true }));
       this.projects.set(Array.isArray(res) ? res : res.content ?? []);
@@ -95,15 +95,15 @@ export class ProjectsComponent implements OnInit {
     this.formError.set(null);
     if (!this.form.name || !this.form.code) { this.formError.set('Name and code are required'); return; }
     try {
-      await firstValueFrom(this.http.post('/qa/api/api/admin/projects', this.form, { withCredentials: true }));
+      await firstValueFrom(this.http.post('/qa/api/admin/projects', this.form, { withCredentials: true }));
       this.showForm = false; this.form = { name: '', code: '', client: '', startDate: '' }; this.load();
     } catch (e: any) { this.formError.set(e?.error?.error ?? 'Failed to create project'); }
   }
 
   async archive(id: number) {
-    try { await firstValueFrom(this.http.post(`/qa/api/api/admin/projects/${id}/archive`, {}, { withCredentials: true })); this.load(); } catch { }
+    try { await firstValueFrom(this.http.post(`/qa/api/admin/projects/${id}/archive`, {}, { withCredentials: true })); this.load(); } catch { }
   }
   async restore(id: number) {
-    try { await firstValueFrom(this.http.post(`/qa/api/api/admin/projects/${id}/restore`, {}, { withCredentials: true })); this.load(); } catch { }
+    try { await firstValueFrom(this.http.post(`/qa/api/admin/projects/${id}/restore`, {}, { withCredentials: true })); this.load(); } catch { }
   }
 }

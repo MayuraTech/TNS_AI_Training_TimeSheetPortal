@@ -90,7 +90,7 @@ export class AuditLogComponent implements OnInit {
   async load() {
     this.loading.set(true);
     try {
-      let url = `/qa/api/api/admin/audit-log?page=${this.page()}&size=20&sort=createdAt,desc`;
+      let url = `/qa/api/admin/audit-log?page=${this.page()}&size=20&sort=createdAt,desc`;
       if (this.filters.actionType) url += `&actionType=${this.filters.actionType}`;
       if (this.filters.entityType) url += `&entityType=${this.filters.entityType}`;
       const res = await firstValueFrom(this.http.get<any>(url, { withCredentials: true }));
