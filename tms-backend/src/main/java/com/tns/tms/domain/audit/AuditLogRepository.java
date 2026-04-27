@@ -19,7 +19,6 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
         AND (:entityType IS NULL OR a.entityType = :entityType)
         AND (:from IS NULL OR a.createdAt >= :from)
         AND (:to IS NULL OR a.createdAt <= :to)
-        ORDER BY a.createdAt DESC
         """)
     Page<AuditLog> findWithFilters(
         @Param("actorId") Long actorId,
