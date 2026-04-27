@@ -42,16 +42,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
         String contextPath = request.getContextPath();
+        String relativePath = (contextPath != null && !contextPath.isEmpty() && path.startsWith(contextPath))
+                ? path.substring(contextPath.length())
+                : path;
 
-        // Remove context path from URI to get the relative path
-        String relativePath = path.substring(contextPath.length());
-
-        // Skip JWT filter for public endpoints — paths here are AFTER context-path (/qa/api) is stripped
-        return relativePath.startsWith("/auth/") ||          // Full URL: /qa/api/auth/**
+        // Skip JWT filter for public auth endpoints
+        return relativePath.startsWith("/auth/") ||
                 relativePath.startsWith("/swagger-ui") ||
                 relativePath.startsWith("/api-docs") ||
-                relativePath.startsWith("/v3/api-docs") ||   // SpringDoc default fallback
-                relativePath.startsWith("/webjars") ||       // Swagger UI static assets
+                relativePath.startsWith("/v3/api-docs") ||
                 relativePath.startsWith("/actuator");
     }
 

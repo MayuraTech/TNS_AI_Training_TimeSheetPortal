@@ -19,6 +19,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -42,9 +43,14 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/api-docs/**").permitAll()
+                        // Auth endpoints — allow both with and without /api prefix to be robust
+                        .requestMatchers("/auth/**", "/api/auth/**").permitAll()
+                        // Swagger / OpenAPI
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/api-docs/**", "/v3/api-docs/**").permitAll()
+                        // Actuator health check
                         .requestMatchers("/actuator/**").permitAll()
+                        // Allow CORS pre-flight (OPTIONS) for all endpoints
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated());
 
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -65,9 +71,18 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
+        // Trim each origin to avoid whitespace issues from comma-separated env var
+        List<String> origins = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .toList();
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
+        // Explicit headers instead of wildcard — required when allowCredentials=true
+        configuration.setAllowedHeaders(List.of(
+                "Authorization", "Content-Type", "Accept",
+                "X-Requested-With", "Cache-Control", "Cookie"));
+        configuration.setExposedHeaders(List.of("Set-Cookie"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 
