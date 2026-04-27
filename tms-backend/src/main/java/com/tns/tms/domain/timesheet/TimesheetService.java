@@ -199,7 +199,7 @@ public class TimesheetService {
     @Transactional(readOnly = true)
     public List<TimesheetEntry> getWeeklyEntries(Long userId, LocalDate weekStart) {
         LocalDate weekEnd = weekStart.plusDays(6);
-        return entryRepository.findByUserIdAndDateBetweenWithUsers(userId, weekStart, weekEnd);
+        return entryRepository.findByUserIdAndDateBetween(userId, weekStart, weekEnd);
     }
 
     @Transactional(readOnly = true)
