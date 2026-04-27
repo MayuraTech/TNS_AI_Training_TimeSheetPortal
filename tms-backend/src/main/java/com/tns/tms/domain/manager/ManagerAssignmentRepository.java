@@ -11,6 +11,12 @@ import java.util.Optional;
 @Repository
 public interface ManagerAssignmentRepository extends JpaRepository<ManagerAssignment, Long> {
 
+    @Query("SELECT ma FROM ManagerAssignment ma JOIN FETCH ma.employee JOIN FETCH ma.manager")
+    List<ManagerAssignment> findAllWithUsers();
+
+    @Query("SELECT ma FROM ManagerAssignment ma JOIN FETCH ma.employee JOIN FETCH ma.manager WHERE ma.effectiveTo IS NULL")
+    List<ManagerAssignment> findActiveWithUsers();
+
     @Query("SELECT ma FROM ManagerAssignment ma WHERE ma.employee.id = :employeeId AND ma.effectiveTo IS NULL")
     Optional<ManagerAssignment> findActiveByEmployeeId(@Param("employeeId") Long employeeId);
 

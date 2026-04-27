@@ -29,7 +29,7 @@ public class ManagerAssignmentController {
     @GetMapping
     @Operation(summary = "List all manager assignments")
     public ResponseEntity<List<Map<String, Object>>> listAssignments() {
-        List<ManagerAssignment> assignments = managerAssignmentRepository.findAll();
+        List<ManagerAssignment> assignments = managerAssignmentRepository.findAllWithUsers();
         List<Map<String, Object>> result = assignments.stream().map(a -> {
             Map<String, Object> m = new java.util.HashMap<>();
             m.put("id", a.getId());

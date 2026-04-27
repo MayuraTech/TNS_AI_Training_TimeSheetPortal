@@ -13,18 +13,21 @@ import java.util.List;
 @Repository
 public interface TimesheetEntryRepository extends JpaRepository<TimesheetEntry, Long> {
 
-    List<TimesheetEntry> findByUserIdAndDate(Long userId, LocalDate date);
+    @Query("SELECT te FROM TimesheetEntry te JOIN FETCH te.user JOIN FETCH te.project WHERE te.user.id = :userId AND te.date = :date")
+    List<TimesheetEntry> findByUserIdAndDateWithUsers(@Param("userId") Long userId, @Param("date") LocalDate date);
 
-    List<TimesheetEntry> findByUserIdAndDateBetween(Long userId, LocalDate from, LocalDate to);
+    @Query("SELECT te FROM TimesheetEntry te JOIN FETCH te.user JOIN FETCH te.project WHERE te.user.id = :userId AND te.date BETWEEN :from AND :to")
+    List<TimesheetEntry> findByUserIdAndDateBetweenWithUsers(@Param("userId") Long userId, @Param("from") LocalDate from, @Param("to") LocalDate to);
 
     @Query("""
         SELECT te FROM TimesheetEntry te
+        JOIN FETCH te.user
+        JOIN FETCH te.project
         WHERE te.user.id = :userId
         AND (:from IS NULL OR te.date >= :from)
         AND (:to IS NULL OR te.date <= :to)
         AND (:status IS NULL OR te.status = :status)
         AND (:projectId IS NULL OR te.project.id = :projectId)
-        ORDER BY te.date DESC
         """)
     Page<TimesheetEntry> findWithFilters(
         @Param("userId") Long userId,
