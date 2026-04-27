@@ -15,7 +15,7 @@ import java.time.Instant;
 public class SystemConfig {
 
     @Id
-    @Column(name = "key", nullable = false)
+    @Column(name = "[key]", nullable = false)
     private String key;
 
     @Column(nullable = false)
