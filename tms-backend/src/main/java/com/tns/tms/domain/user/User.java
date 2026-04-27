@@ -61,6 +61,7 @@ public class User {
 
     @Column(name = "force_password_change", nullable = false)
     @JsonIgnore
+    @Builder.Default
     private boolean forcePasswordChange = true;
 
     @Column(name = "created_at", nullable = false, updatable = false)
